@@ -90,78 +90,43 @@ DEFAULT_PORTS = {
 
 
 def lget(lst, index, default=None):
-    try:
-        return lst[index]
-    except IndexError:
-        return default
+    pass
 
 
 def attemptstr(o):
-    try:
-        return str(o)
-    except Exception:
-        return o
+    pass
 
 
 def utf8(o, default=_absent):
-    try:
-        return o.encode('utf8')
-    except Exception:
-        return o if default is _absent else default
+    pass
 
 
 def non_string_iterable(o):
-    return callable_attr(o, '__iter__') and not isinstance(o, string_types)
+    pass
 
 
 # TODO(grun): Support IDNA2008 via the third party idna module. See
 # https://github.com/gruns/furl/issues/73#issuecomment-226549755.
 def idna_encode(o):
-    if callable_attr(o, 'encode'):
-        return str(o.encode('idna').decode('utf8'))
-    return o
+    pass
 
 
 def idna_decode(o):
-    if callable_attr(utf8(o), 'decode'):
-        return utf8(o).decode('idna')
-    return o
+    pass
 
 
 def is_valid_port(port):
-    port = str(port)
-    if not port.isdigit() or not 0 < int(port) <= 65535:
-        return False
-    return True
+    pass
 
 
 def static_vars(**kwargs):
     def decorator(func):
-        for key, value in six.iteritems(kwargs):
-            setattr(func, key, value)
-        return func
+        pass
     return decorator
 
 
 def create_quote_fn(safe_charset, quote_plus):
-    def quote_fn(s, dont_quote):
-        if dont_quote is True:
-            safe = safe_charset
-        elif dont_quote is False:
-            safe = ''
-        else:  # <dont_quote> is expected to be a string.
-            safe = dont_quote
-
-        # Prune duplicates and characters not in <safe_charset>.
-        safe = ''.join(set(safe) & set(safe_charset))  # E.g. '?^#?' -> '?'.
-
-        quoted = quote(s, safe)
-        if quote_plus:
-            quoted = quoted.replace('%20', '+')
-
-        return quoted
-
-    return quote_fn
+    pass
 
 
 #
@@ -208,19 +173,19 @@ INVALID_HOST_CHARS = '!@#$%^&\'\"*()+=:;/'
 @static_vars(regex=re.compile(
     r'^([\w%s]|(%s))*$' % (re.escape('-.~:@!$&\'()*+,;='), PERCENT_REGEX)))
 def is_valid_encoded_path_segment(segment):
-    return is_valid_encoded_path_segment.regex.match(segment) is not None
+    pass
 
 
 @static_vars(regex=re.compile(
     r'^([\w%s]|(%s))*$' % (re.escape('-.~:@!$&\'()*+,;/?'), PERCENT_REGEX)))
 def is_valid_encoded_query_key(key):
-    return is_valid_encoded_query_key.regex.match(key) is not None
+    pass
 
 
 @static_vars(regex=re.compile(
     r'^([\w%s]|(%s))*$' % (re.escape('-.~:@!$&\'()*+,;/?='), PERCENT_REGEX)))
 def is_valid_encoded_query_value(value):
-    return is_valid_encoded_query_value.regex.match(value) is not None
+    pass
 
 
 @static_vars(regex=re.compile(r'[a-zA-Z][a-zA-Z\-\.\+]*'))
@@ -230,15 +195,7 @@ def is_valid_scheme(scheme):
 
 @static_vars(regex=re.compile('[%s]' % re.escape(INVALID_HOST_CHARS)))
 def is_valid_host(hostname):
-    toks = hostname.split('.')
-    if toks[-1] == '':  # Trailing '.' in a fully qualified domain name.
-        toks.pop()
-
-    for tok in toks:
-        if is_valid_host.regex.search(tok) is not None:
-            return False
-
-    return '' not in toks  # Adjacent periods aren't allowed.
+    pass
 
 
 def get_scheme(url):
@@ -277,8 +234,7 @@ def set_scheme(url, scheme):
 
 # 'netloc' in Python parlance, 'authority' in RFC 3986 parlance.
 def has_netloc(url):
-    scheme = get_scheme(url)
-    return url.startswith('//' if scheme is None else scheme + '://')
+    pass
 
 
 def urlsplit(url):
@@ -332,32 +288,7 @@ def urljoin(base, url):
 
     Returns: The resultant URL from joining <base> and <url>.
     """
-    base_scheme = get_scheme(base) if has_netloc(base) else None
-    url_scheme = get_scheme(url) if has_netloc(url) else None
-
-    if base_scheme is not None:
-        # For consistent URL joining, switch the base URL's scheme to
-        # 'http'. urllib.parse.urljoin() behaves differently depending on the
-        # scheme. E.g.
-        #
-        #   >>> urllib.parse.urljoin('http://google.com/', 'hi')
-        #   'http://google.com/hi'
-        #
-        # vs
-        #
-        #   >>> urllib.parse.urljoin('asdf://google.com/', 'hi')
-        #   'hi'
-        root = set_scheme(base, 'http')
-    else:
-        root = base
-
-    joined = urllib.parse.urljoin(root, url)
-
-    new_scheme = url_scheme if url_scheme is not None else base_scheme
-    if new_scheme is not None and has_netloc(joined):
-        joined = set_scheme(joined, new_scheme)
-
-    return joined
+    pass
 
 
 def join_path_segments(*args):
@@ -378,24 +309,7 @@ def join_path_segments(*args):
 
     Returns: A list containing the joined path segments.
     """
-    finals = []
-
-    for segments in args:
-        if not segments or segments == ['']:
-            continue
-        elif not finals:
-            finals.extend(segments)
-        else:
-            # Example #1: ['a',''] + ['b'] == ['a','b']
-            # Example #2: ['a',''] + ['','b'] == ['a','','b']
-            if finals[-1] == '' and (segments[0] != '' or len(segments) > 1):
-                finals.pop(-1)
-            # Example: ['a'] + ['','b'] == ['a','b']
-            elif finals[-1] != '' and segments[0] == '' and len(segments) > 1:
-                segments = segments[1:]
-            finals.extend(segments)
-
-    return finals
+    pass
 
 
 def remove_path_segments(segments, remove):
@@ -414,37 +328,11 @@ def remove_path_segments(segments, remove):
     segments from <remove> were removed from <segments>, <segments> is
     returned unmodified.
     """
-    # [''] means a '/', which is properly represented by ['', ''].
-    if segments == ['']:
-        segments.append('')
-    if remove == ['']:
-        remove.append('')
-
-    ret = None
-    if remove == segments:
-        ret = []
-    elif len(remove) > len(segments):
-        ret = segments
-    else:
-        toremove = list(remove)
-
-        if len(remove) > 1 and remove[0] == '':
-            toremove.pop(0)
-
-        if toremove and toremove == segments[-1 * len(toremove):]:
-            ret = segments[:len(segments) - len(toremove)]
-            if remove[0] != '' and ret:
-                ret.append('')
-        else:
-            ret = segments
-
-    return ret
+    pass
 
 
 def quacks_like_a_path_with_segments(obj):
-    return (
-        hasattr(obj, 'segments') and
-        is_iterable_but_not_string(obj.segments))
+    pass
 
 
 class Path(object):
@@ -504,26 +392,7 @@ class Path(object):
 
         Returns: <self>.
         """
-        if not path:
-            segments = []
-        elif quacks_like_a_path_with_segments(path):  # Path interface.
-            segments = path.segments
-        elif is_iterable_but_not_string(path):  # List interface.
-            segments = path
-        else:  # String interface.
-            segments = self._segments_from_path(path)
-
-        if self._force_absolute(self):
-            self._isabsolute = True if segments else False
-        else:
-            self._isabsolute = (segments and segments[0] == '')
-
-        if self.isabsolute and len(segments) > 1 and segments[0] == '':
-            segments.pop(0)
-
-        self.segments = segments
-
-        return self
+        pass
 
     def add(self, path):
         """
@@ -532,42 +401,13 @@ class Path(object):
 
         Returns: <self>.
         """
-        if quacks_like_a_path_with_segments(path):  # Path interface.
-            newsegments = path.segments
-        elif is_iterable_but_not_string(path):  # List interface.
-            newsegments = path
-        else:  # String interface.
-            newsegments = self._segments_from_path(path)
-
-        # Preserve the opening '/' if one exists already (self.segments
-        # == ['']).
-        if self.segments == [''] and newsegments and newsegments[0] != '':
-            newsegments.insert(0, '')
-
-        segments = self.segments
-        if self.isabsolute and self.segments and self.segments[0] != '':
-            segments.insert(0, '')
-
-        self.load(join_path_segments(segments, newsegments))
-
-        return self
+        pass
 
     def set(self, path):
-        self.load(path)
-        return self
+        pass
 
     def remove(self, path):
-        if path is True:
-            self.load('')
-        else:
-            if is_iterable_but_not_string(path):  # List interface.
-                segments = path
-            else:  # String interface.
-                segments = self._segments_from_path(path)
-            base = ([''] if self.isabsolute else []) + self.segments
-            self.load(remove_path_segments(base, segments))
-
-        return self
+        pass
 
     def normalize(self):
         """
@@ -575,40 +415,21 @@ class Path(object):
 
         Returns: <self>.
         """
-        if str(self):
-            normalized = normpath(str(self)) + ('/' * self.isdir)
-            if normalized.startswith('//'):  # http://bugs.python.org/636648
-                normalized = '/' + normalized.lstrip('/')
-            self.load(normalized)
-
-        return self
+        pass
 
     def asdict(self):
-        return {
-            'encoded': str(self),
-            'isdir': self.isdir,
-            'isfile': self.isfile,
-            'segments': self.segments,
-            'isabsolute': self.isabsolute,
-            }
+        pass
 
     @property
     def isabsolute(self):
-        if self._force_absolute(self):
-            return True
-        return self._isabsolute
+        pass
 
     @isabsolute.setter
     def isabsolute(self, isabsolute):
         """
         Raises: AttributeError if _force_absolute(self) returns True.
         """
-        if self._force_absolute(self):
-            s = ('Path.isabsolute is True and read-only for URLs with a netloc'
-                 ' (a username, password, host, and/or port). A URL path must '
-                 "start with a '/' to separate itself from a netloc.")
-            raise AttributeError(s)
-        self._isabsolute = isabsolute
+        pass
 
     @property
     def isdir(self):
@@ -617,8 +438,7 @@ class Path(object):
         otherwise. If True, the last segment is '', representing the
         trailing '/' of the path.
         """
-        return (self.segments == [] or
-                (self.segments and self.segments[-1] == ''))
+        pass
 
     @property
     def isfile(self):
@@ -627,7 +447,7 @@ class Path(object):
         True, the last segment is not '', representing some file as the
         last segment of the path.
         """
-        return not self.isdir
+        pass
 
     def __truediv__(self, path):
         copy = deepcopy(self)
@@ -666,27 +486,7 @@ class Path(object):
         refactor the list vs string interface testing to this common
         method.
         """
-        segments = []
-        for segment in path.split('/'):
-            if not is_valid_encoded_path_segment(segment):
-                segment = quote(utf8(segment))
-                if self.strict:
-                    s = ("Improperly encoded path string received: '%s'. "
-                         "Proceeding, but did you mean '%s'?" %
-                         (path, self._path_from_segments(segments)))
-                    warnings.warn(s, UserWarning)
-            segments.append(utf8(segment))
-        del segment
-
-        # In Python 3, utf8() returns Bytes objects that must be decoded into
-        # strings before they can be passed to unquote(). In Python 2, utf8()
-        # returns strings that can be passed directly to urllib.unquote().
-        segments = [
-            segment.decode('utf8')
-            if isinstance(segment, bytes) and not isinstance(segment, str)
-            else segment for segment in segments]
-
-        return [unquote(segment) for segment in segments]
+        pass
 
     def _path_from_segments(self, segments):
         """
@@ -695,10 +495,7 @@ class Path(object):
 
         Returns: A path string with quoted path segments.
         """
-        segments = [
-            quote(utf8(attemptstr(segment)), self.SAFE_SEGMENT_CHARS)
-            for segment in segments]
-        return '/'.join(segments)
+        pass
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -720,16 +517,12 @@ class PathCompositionInterface(object):
 
     @property
     def path(self):
-        return self._path
+        pass
 
     @property
     def pathstr(self):
         """This method is deprecated. Use str(furl.path) instead."""
-        s = ('furl.pathstr is deprecated. Use str(furl.path) instead. There '
-             'should be one, and preferably only one, obvious way to serialize'
-             ' a Path object to a string.')
-        warnings.warn(s, DeprecationWarning)
-        return str(self._path)
+        pass
 
     @abc.abstractmethod
     def _force_absolute(self, path):
@@ -777,7 +570,7 @@ class URLPathCompositionInterface(PathCompositionInterface):
         PathCompositionInterface.__init__(self, strict=strict)
 
     def _force_absolute(self, path):
-        return bool(path) and self.netloc
+        pass
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -795,7 +588,7 @@ class FragmentPathCompositionInterface(PathCompositionInterface):
         PathCompositionInterface.__init__(self, strict=strict)
 
     def _force_absolute(self, path):
-        return False
+        pass
 
 
 class Query(object):
@@ -909,14 +702,10 @@ class Query(object):
         self.load(query)
 
     def load(self, query):
-        items = self._items(query)
-        self.params.load(items)
-        return self
+        pass
 
     def add(self, args):
-        for param, value in self._items(args):
-            self.params.add(param, value)
-        return self
+        pass
 
     def set(self, mapping):
         """
@@ -934,44 +723,18 @@ class Query(object):
 
         Returns: <self>.
         """
-        self.params.updateall(mapping)
-        return self
+        pass
 
     def remove(self, query):
-        if query is True:
-            self.load('')
-            return self
-
-        # Single key to remove.
-        items = [query]
-        # Dictionary or multivalue dictionary of items to remove.
-        if callable_attr(query, 'items'):
-            items = self._items(query)
-        # List of keys or items to remove.
-        elif non_string_iterable(query):
-            items = query
-
-        for item in items:
-            if non_string_iterable(item) and len(item) == 2:
-                key, value = item
-                self.params.popvalue(key, value, None)
-            else:
-                key = item
-                self.params.pop(key, None)
-
-        return self
+        pass
 
     @property
     def params(self):
-        return self._params
+        pass
 
     @params.setter
     def params(self, params):
-        items = self._items(params)
-
-        self._params.clear()
-        for key, value in items:
-            self._params.add(key, value)
+        pass
 
     def encode(self, delimiter='&', quote_plus=True, dont_quote='',
                delimeter=_absent):
@@ -1004,39 +767,10 @@ class Query(object):
         default delimiter is '&', but ';' can also be specified. ';' is
         W3C recommended.
         """
-        if delimeter is not _absent:
-            delimiter = delimeter
-
-        quote_key = create_quote_fn(self.SAFE_KEY_CHARS, quote_plus)
-        quote_value = create_quote_fn(self.SAFE_VALUE_CHARS, quote_plus)
-
-        pairs = []
-        for key, value in self.params.iterallitems():
-            utf8key = utf8(key, utf8(attemptstr(key)))
-            quoted_key = quote_key(utf8key, dont_quote)
-
-            if value is None:  # Example: http://sprop.su/?key.
-                pair = quoted_key
-            else:  # Example: http://sprop.su/?key=value.
-                utf8value = utf8(value, utf8(attemptstr(value)))
-                quoted_value = quote_value(utf8value, dont_quote)
-
-                if not quoted_key:  # Unquote '=' to allow queries like '?==='.
-                    quoted_value = quoted_value.replace('%3D', '=')
-
-                pair = '%s=%s' % (quoted_key, quoted_value)
-
-            pairs.append(pair)
-
-        query = delimiter.join(pairs)
-
-        return query
+        pass
 
     def asdict(self):
-        return {
-            'encoded': str(self),
-            'params': self.params.allitems(),
-            }
+        pass
 
     def __eq__(self, other):
         return str(self) == str(other)
@@ -1079,56 +813,10 @@ class Query(object):
         Raises: UserWarning if <path> is an improperly encoded path
         string and self.strict is True.
         """
-        if not items:
-            items = []
-        # Multivalue Dictionary-like interface. e.g. {'a':1, 'a':2,
-        # 'b':2}
-        elif callable_attr(items, 'allitems'):
-            items = list(items.allitems())
-        elif callable_attr(items, 'iterallitems'):
-            items = list(items.iterallitems())
-        # Dictionary-like interface. e.g. {'a':1, 'b':2, 'c':3}
-        elif callable_attr(items, 'items'):
-            items = list(items.items())
-        elif callable_attr(items, 'iteritems'):
-            items = list(items.iteritems())
-        # Encoded query string. e.g. 'a=1&b=2&c=3'
-        elif isinstance(items, six.string_types):
-            items = self._extract_items_from_querystr(items)
-        # Default to list of key:value items interface. e.g. [('a','1'),
-        # ('b','2')]
-        else:
-            items = list(items)
-
-        return items
+        pass
 
     def _extract_items_from_querystr(self, querystr):
-        items = []
-
-        pairstrs = querystr.split('&')
-        pairs = [item.split('=', 1) for item in pairstrs]
-        pairs = [(p[0], lget(p, 1, '')) for p in pairs]  # Pad with value ''.
-
-        for pairstr, (key, value) in six.moves.zip(pairstrs, pairs):
-            valid_key = is_valid_encoded_query_key(key)
-            valid_value = is_valid_encoded_query_value(value)
-            if self.strict and (not valid_key or not valid_value):
-                msg = (
-                    "Incorrectly percent encoded query string received: '%s'. "
-                    "Proceeding, but did you mean '%s'?" %
-                    (querystr, urllib.parse.urlencode(pairs)))
-                warnings.warn(msg, UserWarning)
-
-            key_decoded = unquote(key.replace('+', ' '))
-            # Empty value without a '=', e.g. '?sup'.
-            if key == pairstr:
-                value_decoded = None
-            else:
-                value_decoded = unquote(value.replace('+', ' '))
-
-            items.append((key_decoded, value_decoded))
-
-        return items
+        pass
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -1143,23 +831,19 @@ class QueryCompositionInterface(object):
 
     @property
     def query(self):
-        return self._query
+        pass
 
     @property
     def querystr(self):
         """This method is deprecated. Use str(furl.query) instead."""
-        s = ('furl.querystr is deprecated. Use str(furl.query) instead. There '
-             'should be one, and preferably only one, obvious way to serialize'
-             ' a Query object to a string.')
-        warnings.warn(s, DeprecationWarning)
-        return str(self._query)
+        pass
 
     @property
     def args(self):
         """
         Shortcut method to access the query parameters, self._query.params.
         """
-        return self._query.params
+        pass
 
     def __setattr__(self, attr, value):
         """
@@ -1200,71 +884,19 @@ class Fragment(FragmentPathCompositionInterface, QueryCompositionInterface):
         self.load(fragment)
 
     def load(self, fragment):
-        self.path.load('')
-        self.query.load('')
-
-        if fragment is None:
-            fragment = ''
-
-        toks = fragment.split('?', 1)
-        if len(toks) == 0:
-            self._path.load('')
-            self._query.load('')
-        elif len(toks) == 1:
-            # Does this fragment look like a path or a query? Default to
-            # path.
-            if '=' in fragment:  # Query example: '#woofs=dogs'.
-                self._query.load(fragment)
-            else:  # Path example: '#supinthisthread'.
-                self._path.load(fragment)
-        else:
-            # Does toks[1] actually look like a query? Like 'a=a' or
-            # 'a=' or '=a'?
-            if '=' in toks[1]:
-                self._path.load(toks[0])
-                self._query.load(toks[1])
-            # If toks[1] doesn't look like a query, the user probably
-            # provided a fragment string like 'a?b?' that was intended
-            # to be adopted as-is, not a two part fragment with path 'a'
-            # and query 'b?'.
-            else:
-                self._path.load(fragment)
+        pass
 
     def add(self, path=_absent, args=_absent):
-        if path is not _absent:
-            self.path.add(path)
-        if args is not _absent:
-            self.query.add(args)
-
-        return self
+        pass
 
     def set(self, path=_absent, args=_absent, separator=_absent):
-        if path is not _absent:
-            self.path.load(path)
-        if args is not _absent:
-            self.query.load(args)
-        if separator is True or separator is False:
-            self.separator = separator
-
-        return self
+        pass
 
     def remove(self, fragment=_absent, path=_absent, args=_absent):
-        if fragment is True:
-            self.load('')
-        if path is not _absent:
-            self.path.remove(path)
-        if args is not _absent:
-            self.query.remove(args)
-
-        return self
+        pass
 
     def asdict(self):
-        return {
-            'encoded': str(self),
-            'separator': self.separator,
-            'path': self.path.asdict(),
-            'query': self.query.asdict(),
-            }
+        pass
 
     def __eq__(self, other):
         return str(self) == str(other)
@@ -1312,16 +944,12 @@ class FragmentCompositionInterface(object):
 
     @property
     def fragment(self):
-        return self._fragment
+        pass
 
     @property
     def fragmentstr(self):
         """This method is deprecated. Use str(furl.fragment) instead."""
-        s = ('furl.fragmentstr is deprecated. Use str(furl.fragment) instead. '
-             'There should be one, and preferably only one, obvious way to '
-             'serialize a Fragment object to a string.')
-        warnings.warn(s, DeprecationWarning)
-        return str(self._fragment)
+        pass
 
     def __setattr__(self, attr, value):
         """
@@ -1393,71 +1021,30 @@ class furl(URLPathCompositionInterface, QueryCompositionInterface,
         Raises: ValueError on invalid URL, like a malformed IPv6 address
         or invalid port.
         """
-        self.username = self.password = None
-        self._host = self._port = self._scheme = None
-
-        if url is None:
-            url = ''
-        if not isinstance(url, six.string_types):
-            url = str(url)
-
-        # urlsplit() raises a ValueError on malformed IPv6 addresses in
-        # Python 2.7+.
-        tokens = urlsplit(url)
-
-        self.netloc = tokens.netloc  # Raises ValueError in Python 2.7+.
-        self.scheme = tokens.scheme
-        if not self.port:
-            self._port = DEFAULT_PORTS.get(self.scheme)
-        self.path.load(tokens.path)
-        self.query.load(tokens.query)
-        self.fragment.load(tokens.fragment)
-
-        return self
+        pass
 
     @property
     def scheme(self):
-        return self._scheme
+        pass
 
     @scheme.setter
     def scheme(self, scheme):
-        if callable_attr(scheme, 'lower'):
-            scheme = scheme.lower()
-        self._scheme = scheme
+        pass
 
     @property
     def host(self):
-        return self._host
+        pass
 
     @host.setter
     def host(self, host):
         """
         Raises: ValueError on invalid host or malformed IPv6 address.
         """
-        # Invalid IPv6 literal.
-        urllib.parse.urlsplit('http://%s/' % host)  # Raises ValueError.
-
-        # Invalid host string.
-        resembles_ipv6_literal = (
-            host is not None and lget(host, 0) == '[' and ':' in host and
-            lget(host, -1) == ']')
-        if (host is not None and not resembles_ipv6_literal and
-           not is_valid_host(host)):
-            errmsg = (
-                "Invalid host '%s'. Host strings must have at least one "
-                "non-period character, can't contain any of '%s', and can't "
-                "have adjacent periods.")
-            raise ValueError(errmsg % (host, INVALID_HOST_CHARS))
-
-        if callable_attr(host, 'lower'):
-            host = host.lower()
-        if callable_attr(host, 'startswith') and host.startswith('xn--'):
-            host = idna_decode(host)
-        self._host = host
+        pass
 
     @property
     def port(self):
-        return self._port or DEFAULT_PORTS.get(self.scheme)
+        pass
 
     @port.setter
     def port(self, port):
@@ -1468,29 +1055,11 @@ class furl(URLPathCompositionInterface, QueryCompositionInterface,
 
         Raises: ValueError on invalid port.
         """
-        if port is None:
-            self._port = DEFAULT_PORTS.get(self.scheme)
-        elif is_valid_port(port):
-            self._port = int(str(port))
-        else:
-            raise ValueError("Invalid port '%s'." % port)
+        pass
 
     @property
     def netloc(self):
-        userpass = quote(utf8(self.username) or '', safe='')
-        if self.password is not None:
-            userpass += ':' + quote(utf8(self.password), safe='')
-        if userpass or self.username is not None:
-            userpass += '@'
-
-        netloc = idna_encode(self.host)
-        if self.port and self.port != DEFAULT_PORTS.get(self.scheme):
-            netloc = (netloc or '') + (':' + str(self.port))
-
-        if userpass or netloc:
-            netloc = (userpass or '') + (netloc or '')
-
-        return netloc
+        pass
 
     @netloc.setter
     def netloc(self, netloc):
@@ -1500,76 +1069,23 @@ class furl(URLPathCompositionInterface, QueryCompositionInterface,
             'user:pass@google.com:99'.
         Raises: ValueError on invalid port or malformed IPv6 address.
         """
-        # Raises ValueError on malformed IPv6 addresses.
-        urllib.parse.urlsplit('http://%s/' % netloc)
-
-        username = password = host = port = None
-
-        if netloc and '@' in netloc:
-            userpass, netloc = netloc.split('@', 1)
-            if ':' in userpass:
-                username, password = userpass.split(':', 1)
-            else:
-                username = userpass
-
-        if netloc and ':' in netloc:
-            # IPv6 address literal.
-            if ']' in netloc:
-                colonpos, bracketpos = netloc.rfind(':'), netloc.rfind(']')
-                if colonpos > bracketpos and colonpos != bracketpos + 1:
-                    raise ValueError("Invalid netloc '%s'." % netloc)
-                elif colonpos > bracketpos and colonpos == bracketpos + 1:
-                    host, port = netloc.rsplit(':', 1)
-                else:
-                    host = netloc
-            else:
-                host, port = netloc.rsplit(':', 1)
-                host = host
-        else:
-            host = netloc
-
-        # Avoid side effects by assigning self.port before self.host so
-        # that if an exception is raised when assigning self.port,
-        # self.host isn't updated.
-        self.port = port  # Raises ValueError on invalid port.
-        self.host = host
-        self.username = None if username is None else unquote(username)
-        self.password = None if password is None else unquote(password)
+        pass
 
     @property
     def origin(self):
-        port = ''
-        scheme = self.scheme or ''
-        host = idna_encode(self.host) or ''
-        if self.port and self.port != DEFAULT_PORTS.get(self.scheme):
-            port = ':%s' % self.port
-        origin = '%s://%s%s' % (scheme, host, port)
-
-        return origin
+        pass
 
     @origin.setter
     def origin(self, origin):
-        if origin is None:
-            self.scheme = self.netloc = None
-        else:
-            toks = origin.split('://', 1)
-            if len(toks) == 1:
-                host_port = origin
-            else:
-                self.scheme, host_port = toks
-
-            if ':' in host_port:
-                self.host, self.port = host_port.split(':', 1)
-            else:
-                self.host = host_port
+        pass
 
     @property
     def url(self):
-        return self.tostr()
+        pass
 
     @url.setter
     def url(self, url):
-        return self.load(url)
+        pass
 
     def add(self, args=_absent, path=_absent, fragment_path=_absent,
             fragment_args=_absent, query_params=_absent):
@@ -1602,23 +1118,7 @@ class furl(URLPathCompositionInterface, QueryCompositionInterface,
         Raises: UserWarning if redundant and possibly conflicting <args> and
         <query_params> were provided.
         """
-        if args is not _absent and query_params is not _absent:
-            s = ('Both <args> and <query_params> provided to furl.add(). '
-                 '<args> is a shortcut for <query_params>, not to be used '
-                 'with <query_params>. See furl.add() documentation for more '
-                 'details.')
-            warnings.warn(s, UserWarning)
-
-        if path is not _absent:
-            self.path.add(path)
-        if args is not _absent:
-            self.query.add(args)
-        if query_params is not _absent:
-            self.query.add(query_params)
-        if fragment_path is not _absent or fragment_args is not _absent:
-            self.fragment.add(path=fragment_path, args=fragment_args)
-
-        return self
+        pass
 
     def set(self, args=_absent, path=_absent, fragment=_absent, query=_absent,
             scheme=_absent, username=_absent, password=_absent, host=_absent,
@@ -1682,75 +1182,7 @@ class furl(URLPathCompositionInterface, QueryCompositionInterface,
             <fragment_args>, and/or <fragment_separator>) are provided.
         Returns: <self>.
         """
-        def present(v):
-            return v is not _absent
-
-        if present(scheme) and present(origin):
-            s = ('Possible parameter overlap: <scheme> and <origin>. See '
-                 'furl.set() documentation for more details.')
-            warnings.warn(s, UserWarning)
-        provided = [
-            present(netloc), present(origin), present(host) or present(port)]
-        if sum(provided) >= 2:
-            s = ('Possible parameter overlap: <origin>, <netloc> and/or '
-                 '(<host> and/or <port>) provided. See furl.set() '
-                 'documentation for more details.')
-            warnings.warn(s, UserWarning)
-        if sum(present(p) for p in [args, query, query_params]) >= 2:
-            s = ('Possible parameter overlap: <query>, <args>, and/or '
-                 '<query_params> provided. See furl.set() documentation for '
-                 'more details.')
-            warnings.warn(s, UserWarning)
-        provided = [fragment_path, fragment_args, fragment_separator]
-        if present(fragment) and any(present(p) for p in provided):
-            s = ('Possible parameter overlap: <fragment> and '
-                 '(<fragment_path>and/or <fragment_args>) or <fragment> '
-                 'and <fragment_separator> provided. See furl.set() '
-                 'documentation for more details.')
-            warnings.warn(s, UserWarning)
-
-        # Guard against side effects on exception.
-        original_url = self.url
-        try:
-            if username is not _absent:
-                self.username = username
-            if password is not _absent:
-                self.password = password
-            if netloc is not _absent:
-                # Raises ValueError on invalid port or malformed IP.
-                self.netloc = netloc
-            if origin is not _absent:
-                # Raises ValueError on invalid port or malformed IP.
-                self.origin = origin
-            if scheme is not _absent:
-                self.scheme = scheme
-            if host is not _absent:
-                # Raises ValueError on invalid host or malformed IP.
-                self.host = host
-            if port is not _absent:
-                self.port = port  # Raises ValueError on invalid port.
-
-            if path is not _absent:
-                self.path.load(path)
-            if query is not _absent:
-                self.query.load(query)
-            if args is not _absent:
-                self.query.load(args)
-            if query_params is not _absent:
-                self.query.load(query_params)
-            if fragment is not _absent:
-                self.fragment.load(fragment)
-            if fragment_path is not _absent:
-                self.fragment.path.load(fragment_path)
-            if fragment_args is not _absent:
-                self.fragment.query.load(fragment_args)
-            if fragment_separator is not _absent:
-                self.fragment.separator = fragment_separator
-        except Exception:
-            self.load(original_url)
-            raise
-
-        return self
+        pass
 
     def remove(self, args=_absent, path=_absent, fragment=_absent,
                query=_absent, scheme=False, username=False, password=False,
@@ -1785,90 +1217,20 @@ class furl(URLPathCompositionInterface, QueryCompositionInterface,
           password: If True, remove the password, if it exists.
         Returns: <self>.
         """
-        if scheme is True:
-            self.scheme = None
-        if username is True:
-            self.username = None
-        if password is True:
-            self.password = None
-        if host is True:
-            self.host = None
-        if port is True:
-            self.port = None
-        if netloc is True:
-            self.netloc = None
-        if origin is True:
-            self.origin = None
-
-        if path is not _absent:
-            self.path.remove(path)
-
-        if args is not _absent:
-            self.query.remove(args)
-        if query is not _absent:
-            self.query.remove(query)
-        if query_params is not _absent:
-            self.query.remove(query_params)
-
-        if fragment is not _absent:
-            self.fragment.remove(fragment)
-        if fragment_path is not _absent:
-            self.fragment.path.remove(fragment_path)
-        if fragment_args is not _absent:
-            self.fragment.query.remove(fragment_args)
-
-        return self
+        pass
 
     def tostr(self, query_delimiter='&', query_quote_plus=True,
               query_dont_quote=''):
-        encoded_query = self.query.encode(
-            query_delimiter, query_quote_plus, query_dont_quote)
-        url = urllib.parse.urlunsplit((
-            self.scheme or '',  # Must be text type in Python 3.
-            self.netloc,
-            str(self.path),
-            encoded_query,
-            str(self.fragment),
-        ))
-
-        # Differentiate between '' and None values for scheme and netloc.
-        if self.scheme == '':
-            url = ':' + url
-
-        if self.netloc == '':
-            if self.scheme is None:
-                url = '//' + url
-            elif strip_scheme(url) == '':
-                url = url + '//'
-
-        return str(url)
+        pass
 
     def join(self, *urls):
-        for url in urls:
-            if not isinstance(url, six.string_types):
-                url = str(url)
-            newurl = urljoin(self.url, url)
-            self.load(newurl)
-        return self
+        pass
 
     def copy(self):
-        return self.__class__(self)
+        pass
 
     def asdict(self):
-        return {
-            'url': self.url,
-            'scheme': self.scheme,
-            'username': self.username,
-            'password': self.password,
-            'host': self.host,
-            'host_encoded': idna_encode(self.host),
-            'port': self.port,
-            'netloc': self.netloc,
-            'origin': self.origin,
-            'path': self.path.asdict(),
-            'query': self.query.asdict(),
-            'fragment': self.fragment.asdict(),
-            }
+        pass
 
     def __truediv__(self, path):
         return self.copy().add(path=path)
